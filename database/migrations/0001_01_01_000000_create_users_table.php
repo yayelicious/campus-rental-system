@@ -17,9 +17,19 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Campus-specific fields
+            $table->string('student_id')->unique()->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('campus')->nullable();
+            $table->string('department')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('profile_photo_path')->nullable();
+            $table->decimal('rating', 3, 2)->default(0);
+            $table->boolean('is_verified_student')->default(false);
+            
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
-            $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
         });
 
