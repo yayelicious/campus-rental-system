@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\Category;
 use App\Models\Item;
@@ -57,13 +57,13 @@ class AddNewItem extends Component
     }
 
     public function render()
-    {
-        return view('livewire.add-new-item', [
-            'categories' => Category::query()
-                ->where('is_active', true)
-                ->where('slug', '!=', 'school-supplies')
-                ->orderBy('name')
-                ->get(),
-        ])->layout('layouts.app');
-    }
+{
+    return view('livewire.add-new-item', [
+        'categories' => Category::query()
+            ->where('is_active', true)
+            ->where('slug', '!=', 'school-supplies')
+            ->orderBy('name')
+            ->get(),
+    ])->layout('layouts.app');
+}
 }
