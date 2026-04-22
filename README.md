@@ -16,42 +16,42 @@ The Campus Item Rental Management System is a web-based platform designed to fac
 
 1. Authentication & Profile Module - Handles user-related screens (foundation of system):
 
- Landing Page
- Sign In
- Sign Up
- My Profile (Manage your Profile)
- Responsibilities
- Authentication (login/register/logout)
- User profile management
- Session handling
- Base layout (navbar, footer)
+     Landing Page
+     Sign In
+     Sign Up
+     My Profile (Manage your Profile)
+     Responsibilities
+     Authentication (login/register/logout)
+     User profile management
+     Session handling
+     Base layout (navbar, footer)
 
 
 2. Item Management Module (Owner Side) - Handles item listing and inventory (core system feature):
 
- My Listings (Items I've lent out)
- Add New Item
- Edit Item Info
- View Item Info (Owner POV)
- Manage Inventory
- Responsibilities
- Item CRUD (Create, Read, Update, Delete)
- Item categories
- Image upload
- Availability status
+     My Listings (Items I've lent out)
+     Add New Item
+     Edit Item Info
+     View Item Info (Owner POV)
+     Manage Inventory
+     Responsibilities
+     Item CRUD (Create, Read, Update, Delete)
+     Item categories
+     Image upload
+     Availability status
 
 
 3. Rental & Browsing Module (Renter Side) - Handles browsing and rental workflow (logic-heavy):
 
- Home Page
- Item Info (Renter POV)
- My Rentals (Items I've Rented)
- Responsibilities
- Browse items
- Search/filter items
- Request rental
- Rental status tracking
- Rental history
+     Home Page
+     Item Info (Renter POV)
+     My Rentals (Items I've Rented)
+     Responsibilities
+     Browse items
+     Search/filter items
+     Request rental
+     Rental status tracking
+     Rental history
  
 
 ## About Laravel

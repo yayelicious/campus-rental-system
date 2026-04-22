@@ -41,30 +41,34 @@
                                         </svg>
                                     </div>
                                 @endif
-                                
+
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="text-lg font-semibold text-gray-900">{{ $item->name }}</h3>
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full
                                             {{ $item->status === 'available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                             {{ ucfirst($item->status) }}
                                         </span>
                                     </div>
-                                    
+
                                     <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ $item->description }}</p>
-                                    
+
                                     <div class="flex justify-between items-center mb-3">
-                                        <span class="text-2xl font-bold text-blue-600">${{ number_format($item->price, 2) }}</span>
+                                        <span class="text-2xl font-bold text-blue-600">₱{{ number_format($item->price, 2) }}</span>
                                         <span class="text-sm text-gray-500">per day</span>
                                     </div>
-                                    
+
                                     <div class="text-sm text-gray-500 mb-3">
                                         <span>{{ $item->rentals_count }} rentals</span>
                                     </div>
-                                    
+
                                     <div class="flex space-x-2">
                                         <a href="{{ route('item.view', $item->id) }}" class="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm">
                                             View Details
+                                        </a>
+                                        <a href="{{ route('edit-item', $item->id) }}"
+                                                class="flex-1 text-center bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded text-sm">
+                                            Edit
                                         </a>
                                         <button wire:click="deleteItem({{ $item->id }})"
                                                 wire:confirm="Are you sure you want to delete '{{ $item->name }}'? This action cannot be undone."
@@ -76,7 +80,7 @@
                             </div>
                         @endforeach
                     </div>
-                    
+
                     <div class="mt-6">
                         {{ $items->links() }}
                     </div>
