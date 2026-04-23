@@ -170,7 +170,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-3">Price per Day <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <span class="absolute left-4 top-3 text-gray-500 font-semibold">$</span>
+                                <span class="absolute left-4 top-3 text-gray-500 font-semibold">₱</span>
                                 <input 
                                     type="number" 
                                     step="0.01"
@@ -271,7 +271,6 @@
                     </div>
                 </form>
             </div>
-            </div>
-        </div>
+        @endif
     </div>
 </div>

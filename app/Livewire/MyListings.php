@@ -5,16 +5,19 @@ namespace App\Livewire;
 use App\Models\Item;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
+#[Layout('layouts.app')]
 class MyListings extends Component
 {
     use WithPagination;
 
     public function deleteItem($itemId)
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(Auth::check(), 403);
 
-        $item = Item::where('user_id', auth()->id())->findOrFail($itemId);
+        $item = Item::where('user_id', Auth::id())->findOrFail($itemId);
 
         $item->delete();
 
@@ -25,15 +28,15 @@ class MyListings extends Component
 
     public function render()
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(Auth::check(), 403);
 
-        $items = Item::where('user_id', auth()->id())
+        $items = Item::where('user_id', Auth::id())
             ->withCount('rentals')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return view('livewire.my-listings', [
             'items' => $items,
-        ])->layout('layouts.app');
+        ]);
     }
 }

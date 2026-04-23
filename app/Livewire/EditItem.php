@@ -7,7 +7,10 @@ use App\Models\Item;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class EditItem extends Component
 {
     use WithFileUploads;
@@ -19,7 +22,7 @@ class EditItem extends Component
     public function mount(Item $item)
     {
         // security check
-        abort_unless($item->user_id === auth()->id(), 403);
+        abort_unless($item->user_id === Auth::id(), 403);
 
         $this->item = $item;
 
@@ -45,7 +48,7 @@ class EditItem extends Component
 
     public function update()
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(Auth::check(), 403);
 
         $this->validate();
 
@@ -77,6 +80,6 @@ class EditItem extends Component
     {
         return view('livewire.edit-item', [
             'categories' => Category::where('is_active', true)->orderBy('name')->get(),
-        ])->layout('layouts.app');
+        ]);
     }
 }

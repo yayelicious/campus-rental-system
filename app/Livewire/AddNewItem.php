@@ -6,7 +6,10 @@ use App\Models\Category;
 use App\Models\Item;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
+#[Layout('layouts.app')]
 class AddNewItem extends Component
 {
     use WithFileUploads;
@@ -31,7 +34,7 @@ class AddNewItem extends Component
 
     public function submit()
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(Auth::check(), 403);
 
         $this->validate();
 
@@ -42,7 +45,7 @@ class AddNewItem extends Component
         $imagePath = $this->image ? $this->image->store('item-photos', 'public') : null;
 
         Item::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
@@ -57,13 +60,13 @@ class AddNewItem extends Component
     }
 
     public function render()
-{
-    return view('livewire.add-new-item', [
-        'categories' => Category::query()
-            ->where('is_active', true)
-            ->where('slug', '!=', 'school-supplies')
-            ->orderBy('name')
-            ->get(),
-    ])->layout('layouts.app');
-}
+    {
+        return view('livewire.add-new-item', [
+            'categories' => Category::query()
+                ->where('is_active', true)
+                ->where('slug', '!=', 'school-supplies')
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
 }

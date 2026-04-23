@@ -1,203 +1,121 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="border-b border-slate-200 bg-white">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}">
-                        <x-application-mark class="block h-9 w-auto" />
-                    </a>
-                </div>
-            </div>
-
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <div class="me-6 flex items-center gap-2 rounded-full bg-slate-50 px-2 py-1 ring-1 ring-slate-200">
-                    <a href="{{ route('home') }}"
-                        class="{{ request()->routeIs('home') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
-                        {{ __('Home') }}
-                    </a>
-
-                    <a href="{{ route('my-rentals') }}"
-                        class="{{ request()->routeIs('my-rentals') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
-                        {{ __('My Rentals') }}
-                    </a>
-
-                    <a href="{{ route('my-listings') }}"
-                        class="{{ request()->routeIs('my-listings') || request()->routeIs('add-item') || request()->routeIs('item.view') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
-                        {{ __('My Listings') }}
-                    </a>
-                </div>
-
-                <!-- Teams Dropdown -->
-                @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
-                    <div class="ms-3 relative">
-                        <x-dropdown align="right" width="60">
-                            <x-slot name="trigger">
-                                <span class="inline-flex rounded-md">
-                                    <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
-                                        {{ Auth::user()->currentTeam->name }}
-
-                                        <svg class="ms-2 -me-0.5 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                        </svg>
-                                    </button>
-                                </span>
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <div class="w-60">
-                                    <!-- Team Management -->
-                                    <div class="block px-4 py-2 text-xs text-gray-400">
-                                        {{ __('Manage Team') }}
-                                    </div>
-
-                                    <!-- Team Settings -->
-                                    <x-dropdown-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}">
-                                        {{ __('Team Settings') }}
-                                    </x-dropdown-link>
-
-                                    @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
-                                        <x-dropdown-link href="{{ route('teams.create') }}">
-                                            {{ __('Create New Team') }}
-                                        </x-dropdown-link>
-                                    @endcan
-
-                                    <!-- Team Switcher -->
-                                    @if (Auth::user()->allTeams()->count() > 1)
-                                        <div class="border-t border-gray-200"></div>
-
-                                        <div class="block px-4 py-2 text-xs text-gray-400">
-                                            {{ __('Switch Teams') }}
-                                        </div>
-
-                                        @foreach (Auth::user()->allTeams() as $team)
-                                            <x-switchable-team :team="$team" />
-                                        @endforeach
-                                    @endif
-                                </div>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
-                @endif
-
-                <!-- Settings Dropdown -->
-                <div class="ms-3 relative">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                <button class="flex rounded-full border-2 border-transparent focus:outline-none focus:border-gray-300 transition">
-                                    <img class="size-12 rounded-full object-cover ring-1 ring-slate-200" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                                </button>
-                            @else
-                                @php($initials = collect(explode(' ', trim(Auth::user()->name)))->filter()->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode(''))
-                                <button type="button" class="inline-flex size-12 items-center justify-center rounded-full bg-[#e9f1ff] text-base font-semibold text-[#7c94ff] ring-1 ring-[#d9e6ff] transition hover:bg-[#dfeaff] focus:outline-none focus:ring-2 focus:ring-[#c8d9ff]">
-                                    {{ $initials }}
-                                </button>
-                            @endif
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <!-- Account Management -->
-                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ __('Manage Account') }}
-                            </div>
-
-                            <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
-
-                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                    {{ __('API Tokens') }}
-                                </x-dropdown-link>
-                            @endif
-
-                            <div class="border-t border-gray-200"></div>
-
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}" x-data>
-                                @csrf
-
-                                <x-dropdown-link href="{{ route('logout') }}"
-                                         @click.prevent="$root.submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
-                </div>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+    <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-6">
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="flex items-center gap-2">
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-[#2850d8] text-xs font-bold text-white">CR</span>
+                <span class="text-sm font-semibold text-slate-900 sm:text-base">Campus Rental</span>
+            </a>
         </div>
-    </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-3 pb-3 px-4">
-            <div class="space-y-2 rounded-2xl bg-slate-50 p-2 ring-1 ring-slate-200">
+        <div class="hidden items-center gap-3 sm:flex">
+            <div class="flex items-center gap-2 rounded-full bg-slate-50 px-2 py-1 ring-1 ring-slate-200">
                 <a href="{{ route('home') }}"
-                    class="{{ request()->routeIs('home') ? 'bg-[#2850d8] text-white' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} block rounded-xl px-4 py-3 text-sm font-semibold transition">
+                    class="{{ request()->routeIs('home') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
                     {{ __('Home') }}
                 </a>
 
                 <a href="{{ route('my-rentals') }}"
-                    class="{{ request()->routeIs('my-rentals') ? 'bg-[#2850d8] text-white' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} block rounded-xl px-4 py-3 text-sm font-semibold transition">
+                    class="{{ request()->routeIs('my-rentals') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
                     {{ __('My Rentals') }}
                 </a>
 
                 <a href="{{ route('my-listings') }}"
-                    class="{{ request()->routeIs('my-listings') || request()->routeIs('add-item') || request()->routeIs('item.view') ? 'bg-[#2850d8] text-white' : 'text-gray-600 hover:bg-white hover:text-gray-900' }} block rounded-xl px-4 py-3 text-sm font-semibold transition">
+                    class="{{ request()->routeIs('my-listings') || request()->routeIs('add-item') || request()->routeIs('item.view') ? 'bg-[#2850d8] text-white shadow-sm' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} rounded-full px-4 py-2 text-sm font-semibold transition">
                     {{ __('My Listings') }}
                 </a>
             </div>
+
+            <!-- Settings Dropdown -->
+            <div class="ms-3 relative">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                            <button class="flex rounded-full border-2 border-transparent focus:outline-none transition">
+                                <img class="size-12 rounded-full object-cover ring-1 ring-slate-200 transition hover:ring-slate-300" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
+                            </button>
+                        @else
+                            @php($initials = collect(explode(' ', trim(Auth::user()->name)))->filter()->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode(''))
+                            <button type="button" class="inline-flex size-12 items-center justify-center rounded-full bg-[#e9f1ff] text-base font-semibold text-[#7c94ff] ring-1 ring-[#d9e6ff] transition hover:bg-[#dfeaff] focus:outline-none">
+                                {{ $initials }}
+                            </button>
+                        @endif
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <!-- Account Management -->
+                        <div class="block px-4 py-2 text-xs text-gray-400">
+                            {{ __('Manage Account') }}
+                        </div>
+
+                        <x-dropdown-link href="{{ route('profile.show') }}">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                            <x-dropdown-link href="{{ route('api-tokens.index') }}">
+                                {{ __('API Tokens') }}
+                            </x-dropdown-link>
+                        @endif
+
+                        <div class="border-t border-gray-200"></div>
+
+                        <!-- Authentication -->
+                        <form method="POST" action="{{ route('logout') }}" x-data>
+                            @csrf
+
+                            <x-dropdown-link href="{{ route('logout') }}"
+                                     @click.prevent="$root.submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+            </div>
         </div>
 
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="flex items-center px-4">
-                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                    <div class="shrink-0 me-3">
-                        <img class="size-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                    </div>
-                @endif
+        <button @click="open = !open" class="inline-flex items-center justify-center rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:hidden">
+            <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path :class="{ 'hidden': !open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
 
-                <div>
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
+    <!-- Responsive Navigation Menu -->
+    <div x-show="open" x-cloak class="border-t border-slate-200 bg-white px-4 py-3 sm:hidden">
+        <div class="space-y-2 text-sm">
+            <div class="space-y-2 rounded-2xl bg-slate-50 p-2 ring-1 ring-slate-200">
+                <a href="{{ route('home') }}"
+                    class="{{ request()->routeIs('home') ? 'bg-[#2850d8] text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} block rounded-xl px-4 py-3 font-semibold transition">
+                    {{ __('Home') }}
+                </a>
+
+                <a href="{{ route('my-rentals') }}"
+                    class="{{ request()->routeIs('my-rentals') ? 'bg-[#2850d8] text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} block rounded-xl px-4 py-3 font-semibold transition">
+                    {{ __('My Rentals') }}
+                </a>
+
+                <a href="{{ route('my-listings') }}"
+                    class="{{ request()->routeIs('my-listings') || request()->routeIs('add-item') || request()->routeIs('item.view') ? 'bg-[#2850d8] text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900' }} block rounded-xl px-4 py-3 font-semibold transition">
+                    {{ __('My Listings') }}
+                </a>
             </div>
-
-            <div class="mt-3 space-y-1">
-                <!-- Account Management -->
-                <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                    <x-responsive-nav-link href="{{ route('api-tokens.index') }}" :active="request()->routeIs('api-tokens.index')">
-                        {{ __('API Tokens') }}
-                    </x-responsive-nav-link>
+            <a href="{{ route('profile.show') }}" class="flex items-center gap-3 px-1 pt-2 text-slate-600 hover:text-slate-900">
+                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                    <img class="size-12 rounded-full object-cover ring-1 ring-slate-200" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
+                @else
+                    @php($initials = collect(explode(' ', trim(Auth::user()->name)))->filter()->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode(''))
+                    <span class="inline-flex size-12 items-center justify-center rounded-full bg-[#e9f1ff] text-base font-semibold text-[#7c94ff] ring-1 ring-[#d9e6ff]">
+                        {{ $initials }}
+                    </span>
                 @endif
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}" x-data>
-                    @csrf
-
-                    <x-responsive-nav-link href="{{ route('logout') }}"
-                                   @click.prevent="$root.submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
+                <span class="font-medium">Profile</span>
+            </a>
+        </div>
+    </div>
+</nav>
 
                 <!-- Team Management -->
                 @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())

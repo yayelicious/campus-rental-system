@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class ViewItem extends Component
 {
     use WithFileUploads;
@@ -94,6 +96,6 @@ class ViewItem extends Component
         return view('livewire.view-item', [
             'isOwner' => $isOwner,
             'activeRental' => $activeRental,
-        ])->layout('layouts.app');
+        ]);
     }
 }
