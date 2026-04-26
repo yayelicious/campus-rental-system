@@ -10,19 +10,22 @@
 ## About Campus Rental
 Campus Rental System is a Laravel-based peer-to-peer item rental platform for university students. It enables students to list items they own and rent items from other students within their campus community.
 
-Core Features
-The system is organized into three main modules:
+Core Features - The system is organized into three main modules:
 
-Authentication & Profile Module — User registration, login, profile management, and session handling; includes landing page and navbar/footer layout
-Item Management (Owner Side) — Owners can list, edit, and manage their items; includes image uploads, categories, and availability tracking
-Rental & Browsing (Renter Side) — Students can browse/search items, request rentals, and track rental history and status
+    1. Authentication & Profile Module — User registration, login, profile management, and session handling; includes landing page and navbar/footer layout
+    2. Item Management (Owner Side) — Owners can list, edit, and manage their items; includes image uploads, categories, and availability tracking
+    3. Rental & Browsing (Renter Side) — Students can browse/search items, request rentals, and track rental history and status
+
 Tech Stack
-Backend: Laravel 13 with Livewire 3 for reactive components
-Frontend: Blade templates (61.1% of codebase), Tailwind CSS v3, Vite bundler
-Database: Full ORM with migrations support
-Testing: PHPUnit 12 with feature and unit tests
-Tooling: Laravel Boost v2 (AI agent support), Pint (code style), Pail (logs)
-Project Status
+
+    1. Backend: Laravel 13 with Livewire 3 for reactive components
+    2. Frontend: Blade templates (61.1% of codebase), Tailwind CSS v3, Vite bundler
+    3. Database: Full ORM with migrations support
+    4. Testing: PHPUnit 12 with feature and unit tests
+    5. Tooling: Laravel Boost v2 (AI agent support), Pint (code style), Pail (logs)
+
+Project Status:
+
 Newly created (7 days old), actively maintained, follows standard Laravel conventions with support for AI-assisted development through Laravel Boost.
  
 
