@@ -24,10 +24,10 @@
             }
         </script>
     </head>
-    <body class="font-sans antialiased bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <body class="font-sans antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <x-banner />
 
-        <div class="min-h-screen bg-gray-50 dark:bg-slate-900">
+        <div class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
             @livewire('navigation-menu')
 
             <!-- Page Heading -->
@@ -43,6 +43,8 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <x-site-footer />
         </div>
 
         @stack('modals')

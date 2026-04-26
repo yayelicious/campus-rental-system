@@ -15,15 +15,14 @@
     <!-- Navigation -->
     <nav class="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-50 transition-colors">
         <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <a href="#" class="flex items-center gap-2 group">
+            <a href="{{ route('landing') }}" class="flex items-center gap-2 group">
                 <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-gradient-primary text-xs font-bold text-white group-hover:shadow-lg group-hover:shadow-primary-500/50 transition-all duration-300">CR</span>
                 <span class="text-sm font-semibold text-slate-900 dark:text-slate-50 sm:text-base">Campus Rental</span>
             </a>
 
             <div class="flex items-center gap-3">
-                <x-dark-mode-toggle />
-                <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition">Sign In</a>
-                <a href="{{ route('register') }}" class="rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold text-white hover:shadow-lg hover:shadow-primary-500/50 transition-all duration-300">Get Started</a>
+                <a href="{{ route('login') }}" class="hidden sm:inline-flex text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition gap: p-4">Sign In</a>
+                <a href="{{ route('register') }}" class="rounded-lg bg-gradient-primary px-4 py-2 text-sm font-semibold text-white hover:shadow-lg hover:shadow-primary-500/50 transition-all duration-300">Sign Up</a>
             </div>
         </div>
     </nav>
@@ -41,7 +40,7 @@
                 <!-- Badge -->
                 <div class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/20">
                     <span class="inline-flex h-2 w-2 rounded-full bg-green-400"></span>
-                    <span class="text-sm font-medium text-white">Join 1000+ students already sharing</span>
+                    <span class="text-sm font-medium text-white">Welcome to Campus Rental community.</span>
                 </div>
 
                 <!-- Main Heading -->
@@ -51,39 +50,14 @@
                 </h1>
 
                 <p class="mx-auto max-w-2xl text-lg sm:text-xl text-blue-100 dark:text-accent-200 mb-8 leading-relaxed">
-                    Rent and lend items within the University of Mindanao campus community. Connect with fellow students, save money, and share resources effortlessly.
+                    Rent and lend items within the school campus community. Connect with fellow students, save money, and share resources effortlessly.
                 </p>
 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                     <a href="{{ route('register') }}" class="px-8 py-4 rounded-xl bg-white text-primary-600 font-bold text-lg hover:bg-blue-50 transition-all duration-300 hover:shadow-2xl hover:shadow-white/50 hover:-translate-y-1 w-full sm:w-auto">
-                        Create Free Account
+                        Get Started for Free
                     </a>
-                    <a href="{{ route('login') }}" class="px-8 py-4 rounded-xl bg-white/10 backdrop-blur-sm text-white font-bold text-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-300 hover:border-white/50 w-full sm:w-auto">
-                        Sign In
-                    </a>
-                </div>
-
-                <!-- Search Preview -->
-                <div class="mx-auto max-w-2xl">
-                    <div class="flex items-center gap-3 rounded-2xl bg-white/95 dark:bg-slate-900/95 p-2 shadow-2xl backdrop-blur-xl ring-1 ring-white/20 dark:ring-slate-700/50">
-                        <div class="flex min-w-0 flex-1 items-center gap-3 px-4">
-                            <svg class="h-5 w-5 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0Z" />
-                            </svg>
-                            <input
-                                type="text"
-                                placeholder="Explore: laptops, books, cameras..."
-                                class="w-full min-w-0 border-0 bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-0"
-                            >
-                        </div>
-                        <button
-                            type="button"
-                            class="shrink-0 h-12 rounded-xl bg-gradient-primary px-8 text-lg font-semibold text-white hover:shadow-lg hover:shadow-primary-500/50 transition-all duration-300"
-                        >
-                            Search
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -150,7 +124,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Electronics</h3>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Electronics &amp; Gadgets</h3>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">Laptops, cameras, headphones & more</p>
                 </div>
@@ -162,7 +136,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 5.5 2 7.818 2 11.5S6.5 17.5 12 17.5s10-1.818 10-5.5-4.5-6-10-6z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Sports</h3>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Sports &amp; PE Essentials</h3>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">Sports equipment & fitness gear</p>
                 </div>
@@ -210,9 +184,9 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C6.5 5.5 2 7.818 2 11.5S6.5 17.5 12 17.5s10-1.818 10-5.5-4.5-6-10-6z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">More</h3>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">School Supplies &amp; Accessories</h3>
                     </div>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">And much more to discover</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Pens, organizers, bags, and classroom essentials</p>
                 </div>
             </div>
         </div>
@@ -222,7 +196,7 @@
     <section class="bg-gradient-primary dark:bg-gradient-to-br dark:from-primary-900 dark:to-accent-900 text-white py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             <h2 class="text-4xl sm:text-5xl font-bold mb-6">Ready to Get Started?</h2>
-            <p class="text-lg text-blue-100 dark:text-accent-200 mb-8 max-w-2xl mx-auto">Join thousands of students saving money and connecting with their campus community today.</p>
+            <p class="text-lg text-blue-100 dark:text-accent-200 mb-8 max-w-2xl mx-auto">Join and connect with the students within our Campus Rental community.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a href="{{ route('register') }}" class="px-8 py-4 rounded-xl bg-white text-primary-600 font-bold text-lg hover:bg-blue-50 transition-all duration-300 hover:shadow-2xl hover:shadow-white/50 hover:-translate-y-1">
                     Sign Up Now
@@ -234,17 +208,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 py-12">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-gradient-primary text-xs font-bold text-white">CR</span>
-                    <span class="font-semibold text-white">Campus Rental</span>
-                </div>
-                <p class="text-sm">&copy; 2026 Campus Rental. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <x-site-footer />
 </body>
 </html>
