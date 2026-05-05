@@ -24,7 +24,7 @@
                             Your account, tuned to you.
                         </h1>
                         <p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-                            Manage profile details, password protection, and appearance preferences.
+                            Manage profile details and password protection.
                         </p>
                     </div>
 
@@ -38,7 +38,7 @@
                             </span>
                         </div>
 
-                        <div class="grid gap-2 sm:grid-cols-3">
+                        <div class="grid gap-2 sm:grid-cols-2">
                             <a href="#profile" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
                                 <svg class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -50,12 +50,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                                 Security
-                            </a>
-                            <a href="#appearance" class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700">
-                                <svg class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m9-9H3" />
-                                </svg>
-                                Appearance
                             </a>
                         </div>
                     </div>
@@ -104,15 +98,6 @@
                                     </span>
                                     Security
                                 </a>
-
-                                <a href="#appearance" class="inline-flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800/80">
-                                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
-                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m9-9H3" />
-                                        </svg>
-                                    </span>
-                                    Appearance
-                                </a>
                             </nav>
                         </div>
                     </div>
@@ -122,7 +107,7 @@
                     <div id="profile" class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-lg shadow-slate-900/5 backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/85 dark:shadow-slate-900/40">
                         <div class="border-b border-slate-200/70 px-6 py-4 dark:border-slate-700/70">
                             <h2 class="text-lg font-bold text-slate-900 dark:text-slate-50">Profile Information</h2>
-                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Manage your photo, contact number, program, and school level.</p>
+                            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Manage your photo, contact number, program, and year level.</p>
                         </div>
                         <div class="p-6">
                             @livewire('profile.update-profile-information-form')

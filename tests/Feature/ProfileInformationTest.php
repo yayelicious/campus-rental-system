@@ -27,6 +27,17 @@ class ProfileInformationTest extends TestCase
         $this->assertEquals($user->email, $component->state['email']);
     }
 
+    public function test_profile_settings_page_has_year_level_and_no_appearance_setting(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('profile.show'))
+            ->assertOk()
+            ->assertSee('Year Level')
+            ->assertDontSee('School Level')
+            ->assertDontSee('Appearance');
+    }
+
     public function test_profile_information_uses_name_when_first_and_last_name_are_empty(): void
     {
         $this->actingAs($user = User::factory()->create([
@@ -72,7 +83,9 @@ class ProfileInformationTest extends TestCase
 
     public function test_extended_profile_information_can_be_updated(): void
     {
-        $this->actingAs($user = User::factory()->create());
+        $this->actingAs($user = User::factory()->create([
+            'phone_number' => null,
+        ]));
 
         Livewire::test(UpdateProfileInformationForm::class)
             ->set('state', [

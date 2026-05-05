@@ -76,7 +76,7 @@
                         <p><span class="font-semibold text-slate-700">Phone 1:</span> <span class="text-slate-900">{{ $rental->renter->phone_number ?: 'Not provided' }}</span></p>
                         <p><span class="font-semibold text-slate-700">Phone 2:</span> <span class="text-slate-900">{{ $rental->renter->secondary_phone_number ?: 'Not provided' }}</span></p>
                         <p><span class="font-semibold text-slate-700">Program:</span> <span class="text-slate-900">{{ $rental->renter->course ?: 'Not provided' }}</span></p>
-                        <p><span class="font-semibold text-slate-700">School Level:</span> <span class="text-slate-900">{{ $rental->renter->year_level ?: 'Not provided' }}</span></p>
+                        <p><span class="font-semibold text-slate-700">Year Level:</span> <span class="text-slate-900">{{ $rental->renter->year_level ?: 'Not provided' }}</span></p>
                     </div>
                 </div>
 
