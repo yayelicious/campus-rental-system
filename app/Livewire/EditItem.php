@@ -33,6 +33,8 @@ class EditItem extends Component
 
     public function mount(Item $item)
     {
+        abort_if(Auth::user()?->isAdministrator(), 403);
+
         // security check
         abort_unless($item->user_id === Auth::id(), 403);
 
@@ -63,6 +65,7 @@ class EditItem extends Component
     public function update()
     {
         abort_unless(Auth::check(), 403);
+        abort_if(Auth::user()?->isAdministrator(), 403);
 
         $this->validate();
 

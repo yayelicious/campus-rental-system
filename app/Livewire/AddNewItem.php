@@ -37,6 +37,8 @@ class AddNewItem extends Component
 
     public function mount(): void
     {
+        abort_if(Auth::user()?->isAdministrator(), 403);
+
         $this->category_id = Category::query()
             ->where('is_active', true)
             ->orderBy('name')
@@ -46,6 +48,7 @@ class AddNewItem extends Component
     public function submit()
     {
         abort_unless(Auth::check(), 403);
+        abort_if(Auth::user()?->isAdministrator(), 403);
 
         $this->validate();
         $imagePath = $this->image ? $this->image->store('item-photos', 'public') : null;

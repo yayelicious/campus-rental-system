@@ -122,6 +122,12 @@ class ViewItem extends Component
     {
         abort_unless(Auth::check(), 403);
 
+        if (Auth::user()?->isAdministrator()) {
+            session()->flash('message', 'Admin accounts cannot create rental requests.');
+
+            return;
+        }
+
         if ($this->item->user_id === Auth::id()) {
             session()->flash('message', 'You cannot request your own item.');
 
@@ -247,6 +253,7 @@ class ViewItem extends Component
 
         return view('livewire.view-item', [
             'isOwner' => $isOwner,
+            'isAdmin' => Auth::user()?->isAdministrator() ?? false,
             'activeRental' => $activeRental,
         ]);
     }

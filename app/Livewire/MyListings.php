@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\ItemAppeal;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,14 @@ class MyListings extends Component
     public ?int $pendingDeleteItemId = null;
 
     public string $pendingDeleteItemName = '';
+
+    public ?int $pendingAppealItemId = null;
+
+    public string $pendingAppealItemName = '';
+
+    public string $appealReason = '';
+
+    public string $appealDetails = '';
 
     public function confirmDeleteItem(int $itemId): void
     {
@@ -71,6 +80,70 @@ class MyListings extends Component
         $this->showDeleteModal = false;
         $this->pendingDeleteItemId = null;
         $this->pendingDeleteItemName = '';
+    }
+
+    public function openAppeal(int $itemId): void
+    {
+        abort_unless(Auth::check(), 403);
+
+        $item = Item::withTrashed()
+            ->where('user_id', Auth::id())
+            ->whereNotNull('admin_removed_at')
+            ->findOrFail($itemId);
+
+        if ($item->latestAppeal?->status === ItemAppeal::STATUS_PENDING) {
+            session()->flash('message', 'This item already has a pending appeal.');
+
+            return;
+        }
+
+        $this->pendingAppealItemId = $item->id;
+        $this->pendingAppealItemName = $item->name;
+        $this->appealReason = '';
+        $this->appealDetails = '';
+        $this->resetValidation();
+    }
+
+    public function cancelAppeal(): void
+    {
+        $this->reset(['pendingAppealItemId', 'pendingAppealItemName', 'appealReason', 'appealDetails']);
+        $this->resetValidation();
+    }
+
+    public function submitAppeal(): void
+    {
+        abort_unless(Auth::check(), 403);
+
+        $validated = $this->validate([
+            'pendingAppealItemId' => ['required', 'integer'],
+            'appealReason' => ['required', 'string', 'max:150'],
+            'appealDetails' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $item = Item::withTrashed()
+            ->where('user_id', Auth::id())
+            ->whereNotNull('admin_removed_at')
+            ->findOrFail((int) $validated['pendingAppealItemId']);
+
+        $hasPendingAppeal = $item->appeals()
+            ->where('status', ItemAppeal::STATUS_PENDING)
+            ->exists();
+
+        if ($hasPendingAppeal) {
+            session()->flash('message', 'This item already has a pending appeal.');
+            $this->cancelAppeal();
+
+            return;
+        }
+
+        $item->appeals()->create([
+            'user_id' => Auth::id(),
+            'reason' => trim($validated['appealReason']),
+            'details' => trim((string) $validated['appealDetails']) ?: null,
+        ]);
+
+        $this->cancelAppeal();
+        session()->flash('message', 'Appeal submitted for admin review.');
     }
 
     public function updatingSearch(): void
@@ -132,9 +205,13 @@ class MyListings extends Component
     {
         abort_unless(Auth::check(), 403);
 
-        $itemsQuery = Item::query()
+        $itemsQuery = Item::withTrashed()
             ->where('user_id', Auth::id())
-            ->with('latestRental')
+            ->where(function (Builder $query): void {
+                $query->whereNull('deleted_at')
+                    ->orWhereNotNull('admin_removed_at');
+            })
+            ->with(['latestRental', 'latestAppeal'])
             ->withCount('rentals');
 
         if ($this->search !== '') {
@@ -159,7 +236,7 @@ class MyListings extends Component
 
         $categories = Category::query()
             ->where('is_active', true)
-            ->whereHas('items', fn ($query) => $query->where('user_id', Auth::id()))
+            ->whereHas('items', fn ($query) => $query->withTrashed()->where('user_id', Auth::id()))
             ->orderBy('name')
             ->get(['id', 'name']);
 

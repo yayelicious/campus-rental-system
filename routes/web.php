@@ -2,6 +2,9 @@
 
 use App\Livewire\AddNewItem;
 use App\Livewire\AdminDashboard;
+use App\Livewire\AdminMarketplace;
+use App\Livewire\AdminReportsComplaints;
+use App\Livewire\AdminUserManagement;
 use App\Livewire\Dashboard;
 use App\Livewire\EditItem;
 use App\Livewire\HomePage;
@@ -57,5 +60,8 @@ Route::middleware([
 
     Route::middleware(['admin'])->group(function () {
         Route::get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
+        Route::get('/admin/marketplace', AdminMarketplace::class)->name('admin.marketplace');
+        Route::get('/admin/users', AdminUserManagement::class)->name('admin.users');
+        Route::get('/admin/reports', AdminReportsComplaints::class)->name('admin.reports');
     });
 });

@@ -135,36 +135,42 @@
                                 </div>
                             </div>
 
-                            <div class="rounded-lg border border-blue-200 bg-blue-50/50 p-4 space-y-3">
-                                <p class="text-sm font-semibold text-slate-800">Request Rental</p>
+                            @if (! $isAdmin)
+                                <div class="rounded-lg border border-blue-200 bg-blue-50/50 p-4 space-y-3">
+                                    <p class="text-sm font-semibold text-slate-800">Request Rental</p>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs text-slate-600 mb-1">Start Date</label>
-                                        <input type="date" wire:model="startDate" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                                        @error('startDate') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs text-slate-600 mb-1">Start Date</label>
+                                            <input type="date" wire:model="startDate" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                                            @error('startDate') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-600 mb-1">End Date</label>
+                                            <input type="date" wire:model="endDate" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                                            @error('endDate') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                        </div>
                                     </div>
+
                                     <div>
-                                        <label class="block text-xs text-slate-600 mb-1">End Date</label>
-                                        <input type="date" wire:model="endDate" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500">
-                                        @error('endDate') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                        <label class="block text-xs text-slate-600 mb-1">Additional Notes (Optional)</label>
+                                        <textarea wire:model="additionalNotes" rows="2" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Any special request or message for the owner."></textarea>
+                                        @error('additionalNotes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Additional Notes (Optional)</label>
-                                    <textarea wire:model="additionalNotes" rows="2" class="w-full rounded-md border-slate-300 text-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Any special request or message for the owner."></textarea>
-                                    @error('additionalNotes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <button
+                                        wire:click="requestRental"
+                                        @if($item->status !== 'available') disabled @endif
+                                        class="w-full rounded-md bg-slate-900 hover:bg-black text-white text-sm font-semibold py-2.5 disabled:bg-slate-300 disabled:text-slate-500"
+                                    >
+                                        Send Rental Request
+                                    </button>
                                 </div>
-
-                                <button
-                                    wire:click="requestRental"
-                                    @if($item->status !== 'available') disabled @endif
-                                    class="w-full rounded-md bg-slate-900 hover:bg-black text-white text-sm font-semibold py-2.5 disabled:bg-slate-300 disabled:text-slate-500"
-                                >
-                                    Send Rental Request
-                                </button>
-                            </div>
+                            @else
+                                <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                                    Admin accounts can inspect marketplace items but cannot create rental requests.
+                                </div>
+                            @endif
 
                             <div class="rounded-lg border border-rose-200 bg-rose-50/50 p-4">
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
