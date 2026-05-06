@@ -1,0 +1,176 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Livewire\AdminDashboard;
+use App\Livewire\OwnerRentalRequestView;
+use App\Livewire\ViewItem;
+use App\Models\Category;
+use App\Models\Item;
+use App\Models\Rental;
+use App\Models\RentalMessage;
+use App\Models\Report;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class ReportModerationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_user_can_report_an_item_and_the_item_owner(): void
+    {
+        [, $renter, $item] = $this->createRentalScenario();
+
+        $this->actingAs($renter);
+
+        Livewire::test(ViewItem::class, ['id' => $item->id])
+            ->call('openReportForm', Report::TYPE_ITEM)
+            ->set('reportReason', 'Misleading item details')
+            ->set('reportDetails', 'The photo does not match the item.')
+            ->call('submitReport')
+            ->assertSee('Report submitted. An admin will verify it.');
+
+        $this->assertDatabaseHas('reports', [
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $item->user_id,
+            'reported_item_id' => $item->id,
+            'type' => Report::TYPE_ITEM,
+            'status' => Report::STATUS_PENDING,
+        ]);
+
+        Livewire::test(ViewItem::class, ['id' => $item->id])
+            ->call('openReportForm', Report::TYPE_USER)
+            ->set('reportReason', 'Unsafe meetup behavior')
+            ->call('submitReport');
+
+        $this->assertDatabaseHas('reports', [
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $item->user_id,
+            'reported_item_id' => null,
+            'type' => Report::TYPE_USER,
+        ]);
+    }
+
+    public function test_user_can_report_a_message(): void
+    {
+        [$owner, $renter, , $rental] = $this->createRentalScenario();
+        $message = RentalMessage::query()->create([
+            'rental_id' => $rental->id,
+            'sender_id' => $owner->id,
+            'body' => 'Pay now',
+        ]);
+
+        $this->actingAs($renter);
+
+        Livewire::test(OwnerRentalRequestView::class, ['rental' => $rental])
+            ->call('openMessageReportForm', $message->id)
+            ->set('reportReason', 'Threatening message')
+            ->call('submitReport')
+            ->assertSee('Report submitted. An admin will verify it.');
+
+        $this->assertDatabaseHas('reports', [
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $owner->id,
+            'reported_message_id' => $message->id,
+            'type' => Report::TYPE_MESSAGE,
+        ]);
+    }
+
+    public function test_admin_can_issue_warning_remove_item_and_remove_account_after_verification(): void
+    {
+        [$owner, $renter, $item] = $this->createRentalScenario();
+        $accountTarget = User::factory()->create();
+        $admin = User::factory()->admin()->create();
+
+        $warningReport = Report::query()->create([
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $owner->id,
+            'type' => Report::TYPE_USER,
+            'reason' => 'Late handover',
+        ]);
+        $itemReport = Report::query()->create([
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $owner->id,
+            'reported_item_id' => $item->id,
+            'type' => Report::TYPE_ITEM,
+            'reason' => 'Broken item',
+        ]);
+        $accountReport = Report::query()->create([
+            'reporter_id' => $renter->id,
+            'reported_user_id' => $accountTarget->id,
+            'type' => Report::TYPE_USER,
+            'reason' => 'Repeated unsafe behavior',
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(AdminDashboard::class)
+            ->call('issueWarning', $warningReport->id)
+            ->call('removeItem', $itemReport->id)
+            ->call('removeAccount', $accountReport->id);
+
+        $this->assertSame(1, $owner->fresh()->warning_count);
+        $this->assertSoftDeleted($item);
+        $this->assertDatabaseMissing('users', [
+            'id' => $accountTarget->id,
+        ]);
+        $this->assertDatabaseHas('reports', [
+            'id' => $warningReport->id,
+            'status' => Report::STATUS_REVIEWED,
+            'admin_action' => Report::ACTION_WARNING,
+            'reviewed_by' => $admin->id,
+        ]);
+        $this->assertDatabaseHas('reports', [
+            'id' => $itemReport->id,
+            'status' => Report::STATUS_REVIEWED,
+            'admin_action' => Report::ACTION_ITEM_REMOVED,
+            'reviewed_by' => $admin->id,
+        ]);
+        $this->assertDatabaseHas('reports', [
+            'id' => $accountReport->id,
+            'status' => Report::STATUS_REVIEWED,
+            'admin_action' => Report::ACTION_ACCOUNT_REMOVED,
+            'reviewed_by' => $admin->id,
+        ]);
+    }
+
+    /**
+     * @return array{0: User, 1: User, 2: Item, 3: Rental}
+     */
+    private function createRentalScenario(): array
+    {
+        $owner = User::factory()->create();
+        $renter = User::factory()->create();
+
+        $category = Category::query()->create([
+            'name' => 'Electronics',
+            'slug' => 'electronics',
+            'icon' => 'chip',
+            'is_active' => true,
+        ]);
+
+        $item = Item::query()->create([
+            'user_id' => $owner->id,
+            'name' => 'Portable Projector',
+            'description' => 'Compact projector',
+            'price' => 100,
+            'status' => 'available',
+            'category_id' => $category->id,
+        ]);
+
+        $rental = Rental::query()->create([
+            'item_id' => $item->id,
+            'renter_id' => $renter->id,
+            'start_date' => now()->addDay(),
+            'end_date' => now()->addDays(3),
+            'total_price' => 200,
+            'paid_amount' => 0,
+            'payment_status' => Rental::PAYMENT_STATUS_OUTSTANDING,
+            'status' => Rental::STATUS_PENDING,
+        ]);
+
+        return [$owner, $renter, $item, $rental];
+    }
+}

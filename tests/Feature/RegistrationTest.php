@@ -25,7 +25,7 @@ class RegistrationTest extends TestCase
         $response->assertSee('Last Name');
         $response->assertSee('Phone Number');
         $response->assertSee('Program');
-        $response->assertSee('School Level');
+        $response->assertSee('Year Level');
         $response->assertSee('Computing Education');
         $response->assertSee('1st Year');
     }

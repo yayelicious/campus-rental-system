@@ -89,7 +89,12 @@
                             </div>
 
                             <div class="rounded-lg border border-slate-200 p-4">
-                                <p class="text-sm font-semibold text-slate-700 mb-3">Item Owner</p>
+                                <div class="mb-3 flex items-center justify-between gap-3">
+                                    <p class="text-sm font-semibold text-slate-700">Item Owner</p>
+                                    <button wire:click="openReportForm('user')" class="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50">
+                                        Report User
+                                    </button>
+                                </div>
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
                                         {{ collect(explode(' ', trim($item->user->name)))->filter()->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode('') }}
@@ -160,6 +165,46 @@
                                     Send Rental Request
                                 </button>
                             </div>
+
+                            <div class="rounded-lg border border-rose-200 bg-rose-50/50 p-4">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-800">Report this listing</p>
+                                        <p class="text-xs text-slate-600">Admins verify each report before taking action.</p>
+                                    </div>
+                                    <button wire:click="openReportForm('item')" class="rounded-md bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700">
+                                        Report Item
+                                    </button>
+                                </div>
+                            </div>
+
+                            @if($showReportForm)
+                                <div class="rounded-lg border border-rose-200 bg-white p-4 shadow-sm">
+                                    <div class="mb-3 flex items-center justify-between gap-3">
+                                        <p class="text-sm font-semibold text-slate-900">
+                                            Report {{ $reportType === 'item' ? 'Item' : 'User' }}
+                                        </p>
+                                        <button wire:click="cancelReport" class="text-xs font-semibold text-slate-500 hover:text-slate-700">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs text-slate-600 mb-1">Reason</label>
+                                            <input type="text" wire:model="reportReason" maxlength="120" class="w-full rounded-md border-slate-300 text-sm focus:border-rose-500 focus:ring-rose-500" placeholder="Example: misleading listing or unsafe behavior">
+                                            @error('reportReason') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-600 mb-1">Details</label>
+                                            <textarea wire:model="reportDetails" rows="3" class="w-full rounded-md border-slate-300 text-sm focus:border-rose-500 focus:ring-rose-500" placeholder="Share what admins should verify."></textarea>
+                                            @error('reportDetails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                        </div>
+                                        <button wire:click="submitReport" class="w-full rounded-md bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black">
+                                            Submit Report
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="rounded-lg border border-slate-200 p-4">
                                 <ul class="space-y-2 text-xs text-slate-600">

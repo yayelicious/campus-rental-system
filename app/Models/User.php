@@ -55,6 +55,7 @@ class User extends Authenticatable
         'rating',
         'is_verified_student',
         'is_admin',
+        'warning_count',
     ];
 
     protected $hidden = [
@@ -75,6 +76,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_verified_student' => 'boolean',
             'is_admin' => 'boolean',
+            'warning_count' => 'integer',
         ];
     }
 
@@ -92,6 +94,16 @@ class User extends Authenticatable
     public function sentRentalMessages(): HasMany
     {
         return $this->hasMany(RentalMessage::class, 'sender_id');
+    }
+
+    public function reportsMade(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
+
+    public function reportsReceived(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reported_user_id');
     }
 
     // Helper methods

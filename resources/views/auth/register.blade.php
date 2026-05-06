@@ -90,9 +90,9 @@
                             </div>
 
                             <div class="space-y-2">
-                                <x-label for="year_level" value="{{ __('School Level') }}" class="text-sm font-semibold text-slate-700 dark:text-slate-200" />
+                                <x-label for="year_level" value="{{ __('Year Level') }}" class="text-sm font-semibold text-slate-700 dark:text-slate-200" />
                                 <select id="year_level" name="year_level" required class="block w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 text-slate-950 transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-                                    <option value="">Select School Level</option>
+                                    <option value="">Select Year Level</option>
                                     @foreach (\App\Models\User::SCHOOL_LEVELS as $schoolLevel)
                                         <option value="{{ $schoolLevel }}" @selected(old('year_level') === $schoolLevel)>{{ $schoolLevel }}</option>
                                     @endforeach
