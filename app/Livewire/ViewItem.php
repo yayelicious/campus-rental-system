@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Item;
 use App\Models\Rental;
+use App\Models\Report;
 use App\Notifications\RentalRequestedNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,14 @@ class ViewItem extends Component
     public $endDate = '';
 
     public $additionalNotes = '';
+
+    public bool $showReportForm = false;
+
+    public string $reportType = '';
+
+    public string $reportReason = '';
+
+    public string $reportDetails = '';
 
     protected $rules = [
         'name' => 'required|string|min:3',
@@ -173,6 +182,60 @@ class ViewItem extends Component
 
         $this->reset(['startDate', 'endDate', 'additionalNotes']);
         session()->flash('message', 'Rental request sent successfully!');
+    }
+
+    public function openReportForm(string $type): void
+    {
+        abort_unless(Auth::check(), 403);
+        abort_unless(in_array($type, [Report::TYPE_ITEM, Report::TYPE_USER], true), 404);
+
+        if ($this->item->user_id === Auth::id()) {
+            session()->flash('message', 'You cannot report your own listing or account from this page.');
+
+            return;
+        }
+
+        $this->resetValidation();
+        $this->reportType = $type;
+        $this->reportReason = '';
+        $this->reportDetails = '';
+        $this->showReportForm = true;
+    }
+
+    public function cancelReport(): void
+    {
+        $this->showReportForm = false;
+        $this->reportType = '';
+        $this->reportReason = '';
+        $this->reportDetails = '';
+        $this->resetValidation();
+    }
+
+    public function submitReport(): void
+    {
+        abort_unless(Auth::check(), 403);
+        abort_unless(in_array($this->reportType, [Report::TYPE_ITEM, Report::TYPE_USER], true), 404);
+
+        if ($this->item->user_id === Auth::id()) {
+            abort(403, 'You cannot report yourself.');
+        }
+
+        $validated = $this->validate([
+            'reportReason' => ['required', 'string', 'max:120'],
+            'reportDetails' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        Report::query()->create([
+            'reporter_id' => Auth::id(),
+            'reported_user_id' => $this->item->user_id,
+            'reported_item_id' => $this->reportType === Report::TYPE_ITEM ? $this->item->id : null,
+            'type' => $this->reportType,
+            'reason' => trim($validated['reportReason']),
+            'details' => trim((string) $validated['reportDetails']) ?: null,
+        ]);
+
+        $this->cancelReport();
+        session()->flash('message', 'Report submitted. An admin will verify it.');
     }
 
     public function render(): mixed

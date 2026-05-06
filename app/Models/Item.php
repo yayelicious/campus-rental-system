@@ -26,6 +26,11 @@ class Item extends Model
         return $this->hasMany(Rental::class);
     }
 
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reported_item_id');
+    }
+
     public function latestRental(): HasOne
     {
         return $this->hasOne(Rental::class)->latestOfMany();

@@ -69,7 +69,14 @@
 
             <div class="space-y-6">
                 <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <h2 class="text-lg font-bold text-slate-900">Requester</h2>
+                    <div class="flex items-center justify-between gap-3">
+                        <h2 class="text-lg font-bold text-slate-900">Requester</h2>
+                        @if ((int) $rental->renter_id !== (int) auth()->id())
+                            <button wire:click="openUserReportForm({{ $rental->renter_id }})" class="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50">
+                                Report User
+                            </button>
+                        @endif
+                    </div>
                     <div class="mt-4 space-y-3 text-sm">
                         <p><span class="font-semibold text-slate-700">Name:</span> <span class="text-slate-900">{{ $rental->renter->name }}</span></p>
                         <p><span class="font-semibold text-slate-700">Email:</span> <span class="text-slate-900">{{ $rental->renter->email }}</span></p>
@@ -97,6 +104,20 @@
                         <p class="mt-3 text-sm text-slate-600">Request already processed. The requester has been notified automatically.</p>
                     @endif
                 </div>
+
+                @if (! $isOwner)
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Owner</h2>
+                                <p class="mt-1 text-sm text-slate-600">{{ $rental->item->user->name }}</p>
+                            </div>
+                            <button wire:click="openUserReportForm({{ $rental->item->user_id }})" class="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-50">
+                                Report User
+                            </button>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -121,6 +142,11 @@
                                 <span>{{ $message->created_at->format('M d, g:i A') }}</span>
                             </div>
                             <p class="break-words text-sm font-medium">{{ $message->body }}</p>
+                            @if (! $isMine)
+                                <button wire:click="openMessageReportForm({{ $message->id }})" class="{{ $isMine ? 'text-blue-100 hover:text-white' : 'text-rose-600 hover:text-rose-700 dark:text-rose-300 dark:hover:text-rose-200' }} mt-2 text-xs font-semibold">
+                                    Report Message
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @empty
@@ -152,6 +178,34 @@
                     </button>
                 </div>
             </form>
+
+            @if ($showReportForm)
+                <div class="mt-5 rounded-xl border border-rose-200 bg-white p-4 shadow-sm dark:border-rose-900/60 dark:bg-slate-900">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                            Report {{ $reportType === 'message' ? 'Message' : 'User' }}
+                        </p>
+                        <button wire:click="cancelReport" class="text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+                            Cancel
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="mb-1 block text-xs text-slate-600 dark:text-slate-400">Reason</label>
+                            <input type="text" wire:model="reportReason" maxlength="120" class="w-full rounded-md border-slate-300 text-sm focus:border-rose-500 focus:ring-rose-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder="Example: harassment or unsafe behavior">
+                            @error('reportReason') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs text-slate-600 dark:text-slate-400">Details</label>
+                            <textarea wire:model="reportDetails" rows="3" class="w-full rounded-md border-slate-300 text-sm focus:border-rose-500 focus:ring-rose-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder="Share what admins should verify."></textarea>
+                            @error('reportDetails') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <button wire:click="submitReport" class="w-full rounded-md bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black dark:bg-rose-600 dark:hover:bg-rose-700">
+                            Submit Report
+                        </button>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>

@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Rental;
+use App\Models\Report;
+use App\Models\User;
 use App\Notifications\RentalMessageSentNotification;
 use App\Notifications\RentalRequestDecisionNotification;
 use Illuminate\Contracts\View\View;
@@ -18,6 +20,18 @@ class OwnerRentalRequestView extends Component
     public bool $isOwner = false;
 
     public string $messageText = '';
+
+    public bool $showReportForm = false;
+
+    public string $reportType = '';
+
+    public ?int $reportMessageId = null;
+
+    public ?int $reportUserId = null;
+
+    public string $reportReason = '';
+
+    public string $reportDetails = '';
 
     public function mount(Rental $rental): void
     {
@@ -113,6 +127,93 @@ class OwnerRentalRequestView extends Component
 
         $this->rental->refresh();
         session()->flash('message', 'Rental request rejected.');
+    }
+
+    public function openUserReportForm(int $userId): void
+    {
+        abort_unless(Auth::check(), 403);
+        abort_unless($this->isOwner || (int) $this->rental->renter_id === (int) Auth::id(), 403);
+        abort_if($userId === Auth::id(), 403, 'You cannot report yourself.');
+
+        $allowedUserIds = [
+            (int) $this->rental->item->user_id,
+            (int) $this->rental->renter_id,
+        ];
+
+        abort_unless(in_array($userId, $allowedUserIds, true), 404);
+
+        $this->startReport(Report::TYPE_USER);
+        $this->reportUserId = $userId;
+    }
+
+    public function openMessageReportForm(int $messageId): void
+    {
+        abort_unless(Auth::check(), 403);
+        abort_unless($this->isOwner || (int) $this->rental->renter_id === (int) Auth::id(), 403);
+
+        $message = $this->rental->messages()->whereKey($messageId)->firstOrFail();
+        abort_if((int) $message->sender_id === (int) Auth::id(), 403, 'You cannot report your own message.');
+
+        $this->startReport(Report::TYPE_MESSAGE);
+        $this->reportMessageId = $message->id;
+        $this->reportUserId = $message->sender_id;
+    }
+
+    public function cancelReport(): void
+    {
+        $this->showReportForm = false;
+        $this->reportType = '';
+        $this->reportMessageId = null;
+        $this->reportUserId = null;
+        $this->reportReason = '';
+        $this->reportDetails = '';
+        $this->resetValidation();
+    }
+
+    public function submitReport(): void
+    {
+        abort_unless(Auth::check(), 403);
+        abort_unless(in_array($this->reportType, [Report::TYPE_USER, Report::TYPE_MESSAGE], true), 404);
+
+        $validated = $this->validate([
+            'reportReason' => ['required', 'string', 'max:120'],
+            'reportDetails' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if ($this->reportType === Report::TYPE_MESSAGE) {
+            $message = $this->rental->messages()->whereKey($this->reportMessageId)->firstOrFail();
+            abort_if((int) $message->sender_id === (int) Auth::id(), 403, 'You cannot report your own message.');
+            $reportedUserId = $message->sender_id;
+            $reportedMessageId = $message->id;
+        } else {
+            abort_unless(User::query()->whereKey($this->reportUserId)->exists(), 404);
+            abort_if((int) $this->reportUserId === (int) Auth::id(), 403, 'You cannot report yourself.');
+            $reportedUserId = $this->reportUserId;
+            $reportedMessageId = null;
+        }
+
+        Report::query()->create([
+            'reporter_id' => Auth::id(),
+            'reported_user_id' => $reportedUserId,
+            'reported_message_id' => $reportedMessageId,
+            'type' => $this->reportType,
+            'reason' => trim($validated['reportReason']),
+            'details' => trim((string) $validated['reportDetails']) ?: null,
+        ]);
+
+        $this->cancelReport();
+        session()->flash('message', 'Report submitted. An admin will verify it.');
+    }
+
+    private function startReport(string $type): void
+    {
+        $this->resetValidation();
+        $this->reportType = $type;
+        $this->reportMessageId = null;
+        $this->reportUserId = null;
+        $this->reportReason = '';
+        $this->reportDetails = '';
+        $this->showReportForm = true;
     }
 
     public function render(): View
