@@ -18,6 +18,8 @@ class ViewItem extends Component
 {
     use WithFileUploads;
 
+    private const int MAXIMUM_RENTAL_MONTHS = 6;
+
     public $item;
 
     public $isEditing = false;
@@ -47,6 +49,12 @@ class ViewItem extends Component
     public string $reportReason = '';
 
     public string $reportDetails = '';
+
+    public string $rentalRequestNotice = '';
+
+    public string $reportNotice = '';
+
+    public int $noticeToken = 0;
 
     protected $rules = [
         'name' => 'required|string|min:3',
@@ -81,6 +89,21 @@ class ViewItem extends Component
             $this->item->refresh()->load('user', 'rentals.renter');
             $this->syncFormFields();
             $this->resetValidation();
+        }
+    }
+
+    public function updatedStartDate(): void
+    {
+        if (! $this->endDate) {
+            return;
+        }
+
+        $endDate = $this->rentalDateFrom($this->endDate);
+        $minimumEndDate = Carbon::parse($this->minimumEndDate());
+        $maximumEndDate = Carbon::parse($this->maximumRentalEndDate());
+
+        if ($endDate->isBefore($minimumEndDate) || $endDate->isAfter($maximumEndDate)) {
+            $this->endDate = '';
         }
     }
 
@@ -122,22 +145,38 @@ class ViewItem extends Component
     {
         abort_unless(Auth::check(), 403);
 
+        if (Auth::user()?->isAdministrator()) {
+            session()->flash('message', 'Admin accounts cannot create rental requests.');
+            $this->showNotice('rentalRequestNotice', 'Admin accounts cannot create rental requests.');
+
+            return;
+        }
+
         if ($this->item->user_id === Auth::id()) {
             session()->flash('message', 'You cannot request your own item.');
+            $this->showNotice('rentalRequestNotice', 'You cannot request your own item.');
 
             return;
         }
 
         if ($this->item->status !== 'available') {
             session()->flash('message', 'This item is currently unavailable.');
+            $this->showNotice('rentalRequestNotice', 'This item is currently unavailable.');
 
             return;
         }
 
         $validated = $this->validate([
             'startDate' => ['required', 'date', 'after_or_equal:today'],
-            'endDate' => ['required', 'date', 'after:startDate'],
+            'endDate' => [
+                'required',
+                'date',
+                'after_or_equal:startDate',
+                'before_or_equal:'.$this->maximumRentalEndDate(),
+            ],
             'additionalNotes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'endDate.before_or_equal' => 'Rentals can only be requested for up to 6 months.',
         ]);
 
         $existingRequest = $this->item->rentals()
@@ -182,6 +221,7 @@ class ViewItem extends Component
 
         $this->reset(['startDate', 'endDate', 'additionalNotes']);
         session()->flash('message', 'Rental request sent successfully!');
+        $this->showNotice('rentalRequestNotice', 'Rental request sent successfully!');
     }
 
     public function openReportForm(string $type): void
@@ -191,6 +231,7 @@ class ViewItem extends Component
 
         if ($this->item->user_id === Auth::id()) {
             session()->flash('message', 'You cannot report your own listing or account from this page.');
+            $this->showNotice('reportNotice', 'You cannot report your own listing or account from this page.');
 
             return;
         }
@@ -236,6 +277,55 @@ class ViewItem extends Component
 
         $this->cancelReport();
         session()->flash('message', 'Report submitted. An admin will verify it.');
+        $this->showNotice('reportNotice', 'Report submitted. An admin will verify it.');
+    }
+
+    private function showNotice(string $property, string $message): void
+    {
+        $this->{$property} = $message;
+        $this->noticeToken++;
+    }
+
+    public function minimumStartDate(): string
+    {
+        return today()->toDateString();
+    }
+
+    public function minimumEndDate(): string
+    {
+        if (! $this->startDate) {
+            return $this->minimumStartDate();
+        }
+
+        $startDate = $this->rentalDateFrom($this->startDate);
+
+        if ($startDate->isBefore(today())) {
+            return $this->minimumStartDate();
+        }
+
+        return $startDate->toDateString();
+    }
+
+    public function maximumRentalEndDate(): string
+    {
+        $startDate = $this->startDate
+            ? $this->rentalDateFrom($this->startDate)
+            : today();
+
+        if ($startDate->isBefore(today())) {
+            $startDate = today();
+        }
+
+        return $startDate->copy()->addMonthsNoOverflow(self::MAXIMUM_RENTAL_MONTHS)->toDateString();
+    }
+
+    private function rentalDateFrom(string $date): Carbon
+    {
+        try {
+            return Carbon::parse($date);
+        } catch (\Throwable) {
+            return today();
+        }
     }
 
     public function render(): mixed
@@ -247,7 +337,11 @@ class ViewItem extends Component
 
         return view('livewire.view-item', [
             'isOwner' => $isOwner,
+            'isAdmin' => Auth::user()?->isAdministrator() ?? false,
             'activeRental' => $activeRental,
+            'minimumStartDate' => $this->minimumStartDate(),
+            'minimumEndDate' => $this->minimumEndDate(),
+            'maximumEndDate' => $this->maximumRentalEndDate(),
         ]);
     }
 }

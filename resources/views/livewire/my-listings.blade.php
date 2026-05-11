@@ -138,14 +138,16 @@
                             <!-- Status Badge -->
                             <div class="absolute top-3 right-3">
                                 <span class="px-3 py-1 text-xs font-semibold rounded-full
-                                    @if($item->status === 'available')
+                                    @if($item->trashed() && $item->admin_removed_at)
+                                        bg-rose-100 text-rose-800
+                                    @elseif($item->status === 'available')
                                         bg-green-100 text-green-800
                                     @elseif($item->status === 'rented')
                                         bg-orange-100 text-orange-800
                                     @else
                                         bg-gray-100 text-gray-800
                                     @endif">
-                                    {{ ucfirst($item->status) }}
+                                    {{ $item->trashed() && $item->admin_removed_at ? 'Removed' : ucfirst($item->status) }}
                                 </span>
                             </div>
 
@@ -165,6 +167,16 @@
                             <!-- Description -->
                             <p class="text-gray-600 text-sm mb-4 line-clamp-2 dark:text-slate-400">{{ $item->description }}</p>
 
+                            @if ($item->trashed() && $item->admin_removed_at)
+                                <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">
+                                    <p class="font-semibold">Removed by admin</p>
+                                    <p class="mt-1 text-xs">{{ $item->admin_removal_reason }}</p>
+                                    @if ($item->latestAppeal)
+                                        <p class="mt-2 text-xs font-semibold">Appeal: {{ ucfirst($item->latestAppeal->status) }}</p>
+                                    @endif
+                                </div>
+                            @endif
+
                             <!-- Price -->
                             <div class="bg-blue-50 rounded-lg p-3 mb-4 dark:bg-slate-800">
                                 <p class="text-xs font-medium text-gray-600 mb-1 dark:text-slate-400">Rental Price</p>
@@ -173,6 +185,15 @@
                             </div>
 
                             <!-- Actions -->
+                            @if ($item->trashed() && $item->admin_removed_at)
+                                <button
+                                    wire:click="openAppeal({{ $item->id }})"
+                                    @if ($item->latestAppeal?->status === \App\Models\ItemAppeal::STATUS_PENDING) disabled @endif
+                                    class="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:bg-slate-300 disabled:text-slate-600"
+                                >
+                                    {{ $item->latestAppeal?->status === \App\Models\ItemAppeal::STATUS_PENDING ? 'Appeal Pending' : 'Appeal Takedown' }}
+                                </button>
+                            @else
                             <div class="flex gap-2">
                                 @if ($item->latestRental)
                                     <a
@@ -212,6 +233,7 @@
                                     </svg>
                                 </button>
                             </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -253,6 +275,35 @@
                     >
                         Delete Item
                     </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($pendingAppealItemId)
+        <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" wire:click="cancelAppeal"></div>
+
+            <div class="relative w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Appeal Takedown</h2>
+                <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">Ask admins to review "{{ $pendingAppealItemName }}" again.</p>
+
+                <div class="mt-5 space-y-3">
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-400">Reason</label>
+                        <input wire:model="appealReason" type="text" class="w-full rounded-lg border-slate-300 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                        @error('appealReason') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold text-slate-600 dark:text-slate-400">Details</label>
+                        <textarea wire:model="appealDetails" rows="4" class="w-full rounded-lg border-slate-300 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"></textarea>
+                        @error('appealDetails') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" wire:click="cancelAppeal" class="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-200">Cancel</button>
+                    <button type="button" wire:click="submitAppeal" class="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">Submit Appeal</button>
                 </div>
             </div>
         </div>

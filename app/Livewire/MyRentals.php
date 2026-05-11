@@ -36,6 +36,7 @@ class MyRentals extends Component
     public function render()
     {
         abort_unless(Auth::check(), 403);
+        abort_if(Auth::user()?->isAdministrator(), 403);
 
         $baseQuery = Rental::query()
             ->where('renter_id', Auth::id())

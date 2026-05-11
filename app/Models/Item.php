@@ -14,7 +14,27 @@ class Item extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['user_id', 'name', 'description', 'price', 'condition', 'status', 'category_id', 'image_path'];
+    protected $fillable = [
+        'user_id',
+        'name',
+        'description',
+        'price',
+        'condition',
+        'status',
+        'category_id',
+        'image_path',
+        'admin_removed_by',
+        'admin_removal_reason',
+        'admin_removal_details',
+        'admin_removed_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'admin_removed_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -29,6 +49,21 @@ class Item extends Model
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class, 'reported_item_id');
+    }
+
+    public function appeals(): HasMany
+    {
+        return $this->hasMany(ItemAppeal::class);
+    }
+
+    public function latestAppeal(): HasOne
+    {
+        return $this->hasOne(ItemAppeal::class)->latestOfMany();
+    }
+
+    public function removedByAdmin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_removed_by');
     }
 
     public function latestRental(): HasOne
